@@ -1,3 +1,5 @@
+// Vergleiche https://github.com/mfietz/JHyphenator abgerufen am 14.04.19
+
 import java.util.List;
 import de.mfietz.jhyphenator.*;
 

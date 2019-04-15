@@ -11,86 +11,7 @@ import javafx.scene.text.*;
 class Geometry {
 
 
-  public static MALineSegment calcBisec(LineSegment l1, LineSegment l2) {
-    MALineSegment upper = new MALineSegment(new MAVertex(l1.start.x, l1.start.y), new MAVertex(l1.end.x, l1.end.y));
-    MALineSegment lower = new MALineSegment(new MAVertex(l2.start.x, l2.start.y), new MAVertex(l2.end.x, l2.end.y));
-    MAVertex intersectionPoint = new MAVertex(0,0);
 
-    upper.getLineIntersection(lower, intersectionPoint);
-
-
-    MAVertex a = upper.start;
-    MAVertex b = intersectionPoint;
-    MAVertex c = lower.start;
-    // calculate bisection lines
-    double angleABC = angle(a,b,c) / 2.0;
-
-    MAVertex bisecOrientationVectABC = rotate(c.sub(b), angleABC);
-
-    MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC));
-
-    return bisecABC;
-
-  }
-
-  public static double angle(MAVertex x, MAVertex y, MAVertex z) {
-
-    MAVertex v1 = x.sub(y);
-    MAVertex v2 = z.sub(y);
-
-    double angle = Math.atan2(v1.y, v1.x) - Math.atan2(v2.y, v2.x);
-    if (angle < 0) { angle += 2 * Math.PI; }
-
-
-    // angle between - pi and pi
-
-    return angle;
-  }
-
-  public static MAVertex rotate(MAVertex v, double d) {
-
-    double x = Math.cos(d) * v.x - Math.sin(d) * v.y;
-    double y = Math.sin(d) * v.x + Math.cos(d) * v.y;
-    v.x = x;
-    v.y = y;
-
-    return v;
-
-  }
-
-
-
-
-  public static VertexPolygon scalePolygon(VertexPolygon originalPoly, double factor) {
-
-    /*
-    Calculate the center of the polygon.
-     */
-
-    Vertex centerV = new Vertex(0,0);
-
-    for(Vertex v : originalPoly.getOutline()) {
-      centerV = centerV.add(v);
-
-    }
-
-    centerV = centerV.mult(1.0/originalPoly.getOutline().size());
-
-    /*
-    Create the new polygon by moving the center to the origin,
-    scaling and moving the center back.
-     */
-
-    VertexPolygon poly = new VertexPolygon();
-    poly.text = originalPoly.text;
-
-    for(Vertex v : originalPoly.getOutline()) {
-      poly.addVertex(v.sub(centerV).mult(factor).add(centerV));
-    }
-
-    return poly;
-
-  }
 
 
 
@@ -118,43 +39,6 @@ class Geometry {
   }
 
 
-
-  public static VertexPolygon[] findSplitLineApprox(VertexPolygon poly, double upperRatio, double lowerRatio, int density) {
-
-    Hashtable<String,LineSegment> edgeTable = new Hashtable<String,LineSegment>();
-    Hashtable<String,Double> scoreTable = new Hashtable<String,Double>();
-    ArrayList<Vertex> pointList = buildOutlinePoints(poly, edgeTable, density);
-    ArrayList<LineSegment> bottleneckList = new ArrayList<LineSegment>();
-    double polygonSize = poly.getAreaSize();
-    for(Vertex v : pointList) {
-      for(Vertex w : pointList) {
-        if(v.y < w.y && Math.abs(Math.atan2(w.y - v.y,w.x - v.x)) < Math.PI / 20){
-          if(canSee(poly,v,w) && !edgeTable.get(v.toString()).equals(edgeTable.get(w.toString()))){
-            VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
-            bottleneckList.add(new LineSegment(v,w));
-            double score = Math.abs(subPolys[0].getAreaSize() / polygonSize - upperRatio) + Math.abs(subPolys[1].getAreaSize() / polygonSize - lowerRatio);
-            scoreTable.put(new LineSegment(v,w).toString(), score);
-          }
-        }
-      }
-    }
-
-    if(bottleneckList.size() == 0) return null;
-
-    sortBottleneckList(bottleneckList, scoreTable);
-
-    return splitPolygon(poly,bottleneckList.get(0).start,edgeTable.get(bottleneckList.get(0).start.toString()),bottleneckList.get(0).end,edgeTable.get(bottleneckList.get(0).end.toString()));
-  }
-
-  public static void sortBottleneckList(ArrayList<LineSegment> bottleneckList, Hashtable<String,Double> scoreTable){
-    Collections.sort(bottleneckList, new Comparator<LineSegment>() {
-        @Override
-        public int compare(LineSegment line1, LineSegment line2)
-        {
-            return (int) Math.signum(scoreTable.get(line1.toString()) - scoreTable.get(line2.toString()));
-        }
-    });
-  }
 
   public static VertexPolygon[] splitPolygon(VertexPolygon poly, Vertex v, LineSegment vEdge, Vertex w, LineSegment wEdge) {
 
@@ -230,28 +114,6 @@ class Geometry {
 
   }
 
-  public static VertexPolygon[] splitPolygonOnBestBottleneck(VertexPolygon poly) {
-    double minWidth = 0.5 * Math.sqrt(poly.getAreaSize());
-
-    ArrayList<Bottleneck> bottlenecks = findBottleneckInPolygon(poly, minWidth);
-    if(bottlenecks.size() > 0) {
-      Bottleneck best = bottlenecks.get(0);
-      double bestScore = 0;
-      for(int i = 0; i < bottlenecks.size(); i++) {
-        Bottleneck b = bottlenecks.get(i);
-        VertexPolygon[] subPolys = splitPolygon(poly, b.neckLine.start, b.neckLine, b.neckLine.end, b.polygonLine);
-        double score = b.neckLine.start.distance(b.neckLine.end) * Math.sqrt(Math.max(subPolys[0].getAreaSize(), subPolys[1].getAreaSize()));
-        bestScore = Math.max(score, bestScore);
-        if(bestScore == score) best = b;
-        // double score = v.distance(w) * Math.sqrt(Math.min(subPolys[0].getAreaSize(), subPolys[1].getAreaSize()));
-      }
-      VertexPolygon[] subPolys = splitPolygon(poly, best.neckLine.start, best.neckLine, best.neckLine.end, best.polygonLine);
-      return subPolys;
-    } else {
-      return new VertexPolygon[]{poly};
-    }
-  }
-
 
   public static void eliminateDuplicates(VertexPolygon poly) {
     HashSet<Vertex> checklist = new HashSet<Vertex>();
@@ -263,21 +125,6 @@ class Geometry {
       }
     }
     poly.outline = newOutline;
-  }
-
-
-  public static ArrayList<Vertex> buildOutlinePoints(VertexPolygon poly, Hashtable<String, LineSegment> table, int density) {
-    ArrayList<Vertex> pointList = new ArrayList<Vertex>();
-    for(int i = 0; i < poly.getOutline().size(); i++) {
-      LineSegment edge = poly.getLineSegment(i);
-      Vertex directionV = edge.end.sub(edge.start).mult(1/edge.end.distance(edge.start));
-      for(int j = 1; j < density; j++) {
-        Vertex newPoint = edge.start.add(directionV.mult(j * edge.end.distance(edge.start)/density));
-        pointList.add(newPoint);
-        table.put(newPoint.toString(),edge);
-      }
-    }
-    return pointList;
   }
 
 
@@ -298,26 +145,6 @@ class Geometry {
   }
 
 
-  public static ArrayList<Bottleneck> findBottleneckInPolygon(VertexPolygon p, double minWidth) {
-    ArrayList<Bottleneck> bottleneckList = new ArrayList<Bottleneck>();
-    for(Vertex v : p.getOutline()) {
-      Hashtable<String, LineSegment> edgeTable = new Hashtable<String, LineSegment>();
-      ArrayList<Vertex> intersections = new ArrayList<Vertex>();
-      LineSegment horizontalLine = new LineSegment(0, v.y, 1000, v.y);
-      for(int i = 0; i < p.getOutline().size(); i++){
-        LineSegment edge = p.getLineSegment(i);
-        Vertex intersection = new Vertex(-1,-1);
-        if(edge.getLineIntersection(horizontalLine, intersection)){
-          double width = Math.abs(v.x - intersection.x);
-          if(canSee(p,v,intersection) && width < minWidth && width > 0){
-            intersections.add(intersection);
-            bottleneckList.add(new Bottleneck(new LineSegment(v, intersection), edge));
-          }
-        }
-      }
-    }
-    return bottleneckList;
-  }
 
   public static Vertex[] getFurthestPointsInPolygon(VertexPolygon polygon) {
     Vertex x = null;

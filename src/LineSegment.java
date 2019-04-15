@@ -36,6 +36,8 @@ class LineSegment {
     return Math.abs(end.x - start.x);
   }
 
+  // vergleiche https://stackoverflow.com/questions/39819001/javascript-test-if-two-lines-are-overlapping-or-parallel abgerufen am 14.04.19
+
   public boolean getLineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
     double p2_x, double p2_y, double p3_x, double p3_y, Vertex i)
   {
