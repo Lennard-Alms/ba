@@ -51,7 +51,6 @@ class ConvexDecompositionStrategy implements TextStrategy{
 
       List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), m);
 
-      // m += 2;
       drawTrapezoids(head, null);
     } catch (Exception e){
       e.printStackTrace(new java.io.PrintStream(System.out));
