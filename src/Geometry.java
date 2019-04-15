@@ -164,24 +164,5 @@ class Geometry {
     return new Vertex[]{x, y};
   }
 
-  public static double calculateAngle(Vertex x, int mode) {
-    Vertex y = new Vertex(1, 0);
-    Vertex referencePoint = new Vertex(0,0);
-    if(x.equals(y)){return 0.0;}
-    x = x.sub(referencePoint);
-    y = y.sub(referencePoint);
-
-    double dot = x.dot(y);
-    double length_x = x.distance(new Vertex(.0, .0));
-    double length_y = y.distance(new Vertex(.0, .0));
-    double angle = (dot / (length_x * length_y));
-
-    if(mode == 0) return Math.toDegrees(Math.acos(angle));
-    else return (Math.acos(angle));
-  }
-
-  public static double calculateAngle(Vertex x) {
-    return calculateAngle(x, 0);
-  }
 
 }

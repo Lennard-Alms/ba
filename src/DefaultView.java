@@ -194,11 +194,7 @@ class DefaultView {
 
     strategySelector.getItems().addAll(
       "Default",
-      "Simple Strategy",
-      "Medial Axis Strategy",
-      "Scan Strategy",
-      "Graph Strategy",
-      "Graph Split Strategy",
+      "Center X Strategy",
       "Convex",
       "Concave"
     );

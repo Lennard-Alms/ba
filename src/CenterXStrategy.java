@@ -295,7 +295,7 @@ class CenterXStrategy implements TextStrategy{
 
     Boolean tooHigh = false;
     for(int i = 0; i < originalPoly.text.length(); i++){
-      tooHigh = zHeights.get(i) * 2 > 1.5 * deltaX * tau * 2;
+      tooHigh = zHeights.get(i) * 2 > 1.5 * deltaX * tau * 4;
       if(tooHigh) break;
     }
     Boolean foundCut = false;

@@ -1,11 +1,6 @@
 import javafx.scene.shape.Circle;
 import java.util.ArrayList;
 
-/**
- * @author Markus Laubenthal
- * @author Lennard Alms
- * Ein zweidimensionaler Punkt
- */
 public class Vertex {
     public double x;
     public double y;
