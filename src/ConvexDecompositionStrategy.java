@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Random;
 
-class ConvexStrategy implements TextStrategy{
+class ConvexDecompositionStrategy implements TextStrategy{
   double fontsize;
   Pane textLayer;
   boolean drawing = false;
@@ -26,7 +26,7 @@ class ConvexStrategy implements TextStrategy{
   double m = 0;
 
 
-  public ConvexStrategy(){
+  public ConvexDecompositionStrategy(){
     System.out.println("Convex Constructor");
   }
 
@@ -92,7 +92,7 @@ class ConvexStrategy implements TextStrategy{
 
     double requiredHeight = Math.abs(box.top - box.bot);
     double requiredWidth = Math.abs(box.left - box.right);
-    double actualHeight = ascent * 1.1;
+    double actualHeight = ascent;
     double actualWidth = Math.abs(boundingRight - boundingLeft);
     t.setScaleX(requiredWidth / actualWidth);
 

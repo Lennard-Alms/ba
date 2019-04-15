@@ -195,8 +195,7 @@ class DefaultView {
     strategySelector.getItems().addAll(
       "Default",
       "Center X Strategy",
-      "Convex",
-      "Concave"
+      "Concave Decomposition"
     );
     strategySelector.setValue("Default");
     strategySelector.setOnAction(new EventHandler<ActionEvent>() {

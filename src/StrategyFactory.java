@@ -4,26 +4,24 @@ class StrategyFactory {
 
   public static final String CenterX = "Center X Strategy";
   public static final String Default = "Default";
-  public static final String Convex = "Convex";
-  public static final String Concave = "Concave";
+  public static final String ConvexDecomposition = "Convex Decomposition";
+  public static final String ConcaveDecomposition = "Concave Decomposition";
 
   public static TextStrategy getStrategy(String name) {
     switch(name) {
       case CenterX:
         return new CenterXStrategy();
-      case Convex:
-        return new ConvexStrategy();
-      case Concave:
-        return new ConcaveStrategy();
+      case ConcaveDecomposition:
+        return new ConcaveDecompositionStrategy();
       default:
-        return new ConcaveStrategy();
+        return new CenterXStrategy();
     }
   }
 
   public static String getName(TextStrategy strategy) {
     if(strategy instanceof CenterXStrategy) return CenterX;
-    if(strategy instanceof ConvexStrategy) return Convex;
-    if(strategy instanceof ConcaveStrategy) return Concave;
+    if(strategy instanceof ConvexDecompositionStrategy) return ConvexDecomposition;
+    if(strategy instanceof ConcaveDecompositionStrategy) return ConcaveDecomposition;
     return Default;
   }
 }

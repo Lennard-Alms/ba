@@ -18,7 +18,9 @@ import java.util.List;
 class CenterXStrategy implements TextStrategy{
 
 
-  public CenterXStrategy() {}
+  public CenterXStrategy() {
+    System.out.println("Test");
+  }
 
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer){

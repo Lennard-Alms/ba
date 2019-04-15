@@ -16,10 +16,10 @@ import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Random;
 
-class ConcaveStrategy extends ConvexStrategy {
+class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
 
-  public ConcaveStrategy(){
-    System.out.println("Concave Constructor");
+  public ConcaveDecompositionStrategy(){
+    System.out.println("ConcaveDecomposition Constructor");
   }
 
 
@@ -205,7 +205,7 @@ class ConcaveStrategy extends ConvexStrategy {
     }
   }
 
-  // public VerticalTrapezoid trimConcave(VerticalTrapezoid head, VerticalTrapezoid trapezoid, double minHeight) {
+  // public VerticalTrapezoid trimConcaveDecomposition(VerticalTrapezoid head, VerticalTrapezoid trapezoid, double minHeight) {
   //   double heightLeft = trapezoid.left.height();
   //   double heightRight = trapezoid.right.height();
   //
