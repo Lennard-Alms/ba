@@ -13,7 +13,7 @@ class StrategyFactory {
       case ConcaveDecomposition:
         return new ConcaveDecompositionStrategy();
       default:
-        return new CenterXStrategy();
+        return new ConcaveDecompositionStrategy();
     }
   }
 

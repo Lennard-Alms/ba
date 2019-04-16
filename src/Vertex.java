@@ -132,7 +132,7 @@ public class Vertex {
       double y = this.y;
       this.x = y;
       this.y = -x;
-      isRotated = true;
+      isRotated = false;
     }
 
     public int hashCode() {

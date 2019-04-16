@@ -19,7 +19,6 @@ class CenterXStrategy implements TextStrategy{
 
 
   public CenterXStrategy() {
-    System.out.println("Test");
   }
 
 

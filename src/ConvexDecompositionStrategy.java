@@ -23,7 +23,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
   boolean drawing = false;
   int counter = 0;
   int counter2 = 0;
-  double m = 0;
+  double m = 1;
 
 
   public ConvexDecompositionStrategy(){
@@ -73,7 +73,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
     //   monospacedFont = Font.font("Courier New", FontWeight.NORMAL, box.right - box.left);
     // }
 
-    monospacedFont = Font.loadFont("file:./ttf/Cousine-Bold.ttf", box.left - box.right);
+    monospacedFont = Font.loadFont("file:./ttf/Cousine-Bold.ttf", box.right - box.left);
     double baseline = box.bot;
     t.setFont(monospacedFont);
     t.setText(letter);
@@ -91,11 +91,14 @@ class ConvexDecompositionStrategy implements TextStrategy{
 
     double requiredHeight = Math.abs(box.top - box.bot);
     double requiredWidth = Math.abs(box.left - box.right);
-    double actualHeight = ascent;
+    // double actualHeight = Math.abs(Math.abs(boundingTop) - Math.abs(boundingBot));
+    double actualHeight = ascent * 0.8;
     double actualWidth = Math.abs(boundingRight - boundingLeft);
     t.setScaleX(requiredWidth / actualWidth);
 
-    double scale = requiredHeight / (actualHeight - middle);
+
+    double scale = (requiredHeight / (actualHeight));
+    // scale = 1;
     t.setScaleY(scale);
     t.setTranslateY( - middle * (scale - 1));
     t.setTranslateX(((requiredWidth / actualWidth) - 1) * (actualWidth / 2));
@@ -137,10 +140,9 @@ class ConvexDecompositionStrategy implements TextStrategy{
       boundingBoxes.add(new BoundingBox(top, x2_m, bot, x1_m));
     }
 
-    for(BoundingBox b : boundingBoxes) {
-      // drawRectangle(b);
-      System.out.println(b);
-    }
+    // for(BoundingBox b : boundingBoxes) {
+    //   // drawRectangle(b);
+    // }
 
     return boundingBoxes;
   }
@@ -170,9 +172,6 @@ class ConvexDecompositionStrategy implements TextStrategy{
       // if(t.right.start.x >= x2) {
         top = Math.max(top, t.right.start.y);
       // }
-      System.out.println("---");
-      System.out.println(x2);
-      System.out.println(t.right.start.x);
       t = t.getNextExplicit();
     }
     return Math.max(top, getTopAtPosition(t, x2));
@@ -605,7 +604,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
   //   return area;
   // }
 
-  public void lineBreak(VertexList outline, int lineCount) {
+  public List<LineSegment> lineBreak(VertexList outline, int lineCount) {
     rotateCounterClockwise(outline);
     //Linked List mit konstanter Einfüge Operation
     Vertex[] orderedVertices = sort(outline);
@@ -654,7 +653,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
           vLine.start.rotateClockwise();
           vLine.end.rotateClockwise();
           breakingLines.add(vLine);
-          drawLineSegment(vLine);
+          // drawLineSegment(vLine);
           counter++;
         }
       }
@@ -687,9 +686,8 @@ class ConvexDecompositionStrategy implements TextStrategy{
       area_last = area;
     }
 
-
-
     rotateClockwise(outline);
+    return breakingLines;
   }
 
   public void rotateCounterClockwise(VertexList outline) {
@@ -705,7 +703,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
     Vertex v = null;
     for(int i = 0; i < outline.size(); i++) {
       v = outline.next(v);
-      if(!v.isRotated)
+      if(v.isRotated)
         v.rotateClockwise();
     }
   }
