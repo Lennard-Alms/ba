@@ -294,7 +294,6 @@ class CenterXStrategy implements TextStrategy{
     // }
 
     // Bewertung
-    System.out.println(originalPoly.text);
     Boolean tooHigh = false;
     for(int i = 0; i < originalPoly.text.length(); i++){
       tooHigh = zHeights.get(i) * 2 > 1.5 * deltaX * tau * 4;
