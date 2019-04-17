@@ -194,7 +194,7 @@ class DefaultView {
 
     strategySelector.getItems().addAll(
       "Default",
-      "Center X Strategy",
+      "Zentrale Achse Strategie",
       "Concave Decomposition Strategy"
     );
     strategySelector.setValue("Default");
@@ -297,9 +297,11 @@ class DefaultView {
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
       drawUIPolygon(poly);
-      // if(poly.isWithinBox(0,0,1000,800)) {
-        poly.drawText(textLayer);
-      // }
+      if(poly.isWithinBox(0,0,1000,800)) {
+        if(poly.getAreaSize() > 200){
+          poly.drawText(textLayer);
+        }
+      }
     }
     for(VertexPolygon poly : polygonList) {
       for(Vertex v : poly.outline){

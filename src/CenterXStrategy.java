@@ -23,6 +23,7 @@ class CenterXStrategy implements TextStrategy{
 
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer){
+  try{
 
     // ZENTRALE ACHSE
 
@@ -113,7 +114,7 @@ class CenterXStrategy implements TextStrategy{
     Collections.sort(bisectorSegments, new LineSegmentStartXComparator());
 
 
-    double deltax = 2.0;
+    double deltax = 40.0;
     ArrayList<LineSegment> lastColumn = new ArrayList<LineSegment>();
     ArrayList<LineSegment> newColumn = new ArrayList<LineSegment>();
 
@@ -293,7 +294,7 @@ class CenterXStrategy implements TextStrategy{
     // }
 
     // Bewertung
-
+    System.out.println(originalPoly.text);
     Boolean tooHigh = false;
     for(int i = 0; i < originalPoly.text.length(); i++){
       tooHigh = zHeights.get(i) * 2 > 1.5 * deltaX * tau * 4;
@@ -354,7 +355,7 @@ class CenterXStrategy implements TextStrategy{
           upperP = polygonParts[0];
           lowerP = polygonParts[1];
           double upperArea = upperP.getAreaSize();
-          if(Math.abs(upperArea - wantedUpperArea) < originalArea / 95) {
+          if(Math.abs(upperArea - wantedUpperArea) < originalArea / 90) {
             foundCut = true;
             break mainloop;
           } else if (Math.abs(upperArea + areaT - wantedUpperArea) < originalArea / 95) {
@@ -378,7 +379,8 @@ class CenterXStrategy implements TextStrategy{
 
         Font monospacedFont;
         Text t = new Text();
-        monospacedFont = new Font("Cousine Bold", fontsize);
+        //monospacedFont = new Font("Cousine Bold", fontsize);
+        monospacedFont = Font.loadFont("file:./ttf/Cousine-Bold.ttf", fontsize);
 
         String letterI = originalPoly.getText().substring(i, i + 1).toUpperCase();
         t.setFont(monospacedFont);
@@ -507,8 +509,9 @@ class CenterXStrategy implements TextStrategy{
       textLayer.getChildren().add(point);
     }
     */
-
-
+    } catch (Exception e) {
+        System.out.println(e);
+    }
 
   }
 
@@ -624,9 +627,9 @@ class CenterXStrategy implements TextStrategy{
     for(int i = 0; i < poly.getOutline().size(); i++) {
       LineSegment edge = poly.getLineSegment(i);
       pointList.add(edge.end);
-      if(Math.abs(edge.end.y - edge.start.y) > 0.03 * width){
+      if(Math.abs(edge.end.y - edge.start.y) > 0.005 * width){
         Vertex directionV = edge.end.sub(edge.start).mult(1/edge.end.distance(edge.start));
-        for(double j = 0.02 * width; j < Math.abs(edge.end.y - edge.start.y); j += 0.02 * width) {
+        for(double j = 0.005 * width; j < Math.abs(edge.end.y - edge.start.y); j += 0.02 * width) {
           Vertex newPoint = edge.start.add(directionV.mult(j));
           pointList.add(newPoint);
         }

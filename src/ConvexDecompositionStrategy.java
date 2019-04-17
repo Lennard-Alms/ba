@@ -72,6 +72,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
     // if(monospacedFont.getFamily() != "Monospaced") {
     //   monospacedFont = Font.font("Courier New", FontWeight.NORMAL, box.right - box.left);
     // }
+    //monospacedFont = new Font("Cousine Bold", fontsize);
 
     monospacedFont = Font.loadFont("file:./ttf/Cousine-Bold.ttf", box.right - box.left);
     double baseline = box.bot;

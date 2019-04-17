@@ -1,0 +1,18 @@
+{
+  "polygons": [{
+    "outline": [{
+      "x": 100,
+      "y": 200
+    }, {
+      "x": 900,
+      "y": 200
+    }, {
+      "x": 900,
+      "y": 400
+    }, {
+      "x": 100,
+      "y": 400
+    }],
+    "text": "Für Rechtecke bieten viele konventionelle Programme gute Lösungen für die Platzierung von Text. An ein Verfahren welches Polygone mit Text approximiert wird daher die Anforderung gestellt, dass Rechtecke nicht wesentlich schlechter beschriftet werden."
+  }]
+}
