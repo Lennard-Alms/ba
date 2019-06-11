@@ -2,7 +2,7 @@
 class StrategyFactory {
 
 
-  public static final String CenterX = "Center X Strategy";
+  public static final String CenterX = "Zentrale Achse Strategie";
   public static final String Default = "Default";
   public static final String ConcaveDecomposition = "Concave Decomposition Strategy";
 

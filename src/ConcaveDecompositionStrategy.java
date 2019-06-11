@@ -18,6 +18,8 @@ import java.util.Random;
 
 class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
 
+  public double margin = 10;
+  int rec = 0;
   public ConcaveDecompositionStrategy(){
     System.out.println("ConcaveDecomposition Constructor");
   }
@@ -25,19 +27,28 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
 
   public boolean drawing = false;
   public void drawText(VertexPolygon poly, Pane textLayer) {
+    m -= 0.01;
+    System.out.println("m: " + m);
     this.textLayer = textLayer;
 
     Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
       double last = 0;
+      double lasty = 0;
 
       Vertex v = outline.head();
-      for(int i = 0; i < outline.size(); i++) {
+      for(int i = 0; i < outline.size() + 2; i++) {
         if(v.x == last) {
+          System.out.println("schieb");
           v.x += r.nextDouble() * 0.05;
         }
+        if(v.y == lasty) {
+          System.out.println("schieb");
+          v.y += r.nextDouble() * 0.05;
+        }
         last = v.x;
+        lasty = v.y;
         v = outline.getNext(v);
       }
       Vertex[] orderedVertices = sort(outline);
@@ -54,21 +65,41 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       ditchInformation(head, null);
       head = getHead(head, head, null);
       tail = getTail(tail, head, null);
-      // drawTrapezoid(head);
-      // drawTrapezoid(tail);
 
-      // drawTrapezoids(head, null);
-      trimFast(head, tail, minHeight);
+      if(rec == -1)
+        drawTrapezoids(head, null);
+      // trimFast(head, tail, minHeight);
       // trimConvex(head, head, minHeight);
       head = getHead(head, head, null);
       tail = getTail(tail, tail, null);
       // VertexPolygon _p = _trapezoidToPolygonMonotone(head);
       drawing = true;
-      // lineBreak(poly.getDlOutline(), 4);
-      List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), m);
+      List<LineSegment> breakingLines = lineBreak(poly.getDlOutline(), 1);
 
-      for(int i = 0; i < boxes.size(); i++) {
-        placeLetterInBox(boxes.get(i), poly.getText().substring(i, i+1));
+      VertexPolygon[] polygons = null;
+      polygons = cutPolygon(poly, breakingLines.get(0));
+      if(rec == 0) {
+        for(int i = 0; i < 2; i++) {
+          VertexList _outline = polygons[i].getDlOutline();
+          Vertex[] _orderedVertices = sort(_outline);
+          List<VerticalTrapezoid> _trapezoids = getTrapezoidalDecomposition(_outline, _orderedVertices);
+          // drawTrapezoids(_trapezoids.get(0), null);
+          polygons[i].setText("Hallo");
+          polygons[i].setTextStrategy(this);
+          rec = -1;
+          polygons[i].drawText(textLayer);
+          rec = 0;
+        }
+
+      }
+
+      List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), margin);
+
+      if(rec == -1) {
+        for(int i = 0; i < boxes.size(); i++) {
+          placeLetterInBox(boxes.get(i), poly.getText().substring(i, i+1));
+        }
+
       }
     } catch (Exception e){
       System.out.println("---Exception---");
@@ -99,16 +130,8 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
   }
 
   public VerticalTrapezoid getHead(VerticalTrapezoid head, VerticalTrapezoid trap, VerticalTrapezoid prev) {
-    return getHead(head, trap, prev, 0);
-  }
-
-  public VerticalTrapezoid getHead(VerticalTrapezoid head, VerticalTrapezoid trap, VerticalTrapezoid prev, int recursion) {
     if(!head.isActive() && !(trap instanceof VerticalTrapezoidFiller)) {
       head = trap;
-    }
-
-    if(recursion == 0) {
-      if(head.isActive()) System.out.println("head active");
     }
 
     if(!(trap instanceof VerticalTrapezoidFiller) && trap.left.start.x < head.left.start.x) {
@@ -116,21 +139,18 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
     }
     for(VerticalTrapezoid t : trap.getNext()) {
       if(!t.equals(prev)) {
-        VerticalTrapezoid tmp = getHead(head, t, trap, recursion + 1);
+        VerticalTrapezoid tmp = getHead(head, t, trap);
         if(!head.isActive()) head = tmp;
         if(tmp.left.start.x < head.left.start.x && t.isActive()) head = tmp;
       }
     }
     for(VerticalTrapezoid t : trap.getPrev()) {
       if(!t.equals(prev)) {
-        VerticalTrapezoid tmp = getHead(head, t, trap, recursion + 1);
+        VerticalTrapezoid tmp = getHead(head, t, trap);
         if(!head.isActive()) head = tmp;
         if(tmp.left.start.x < head.left.start.x && t.isActive()) head = tmp;
       }
     }
-    // if(recursion == 0) {
-    //   drawTrapezoid(head);
-    // }
     return head;
   }
 
@@ -165,7 +185,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
         if(!t.equals(previous))
           information(t, direction, trap);
       }
-      System.out.println(trap.informationRight);
       return trap.informationRight;
     }
 
@@ -178,10 +197,8 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       VerticalTrapezoid[] arr = _next.toArray(new VerticalTrapezoid[2]);
       System.out.println(arr[0].informationRight);
       if(arr[0].informationRight > arr[1].informationRight) {
-        System.out.println("HALSKDJLAKSJDLKASJDLKAJSDLKJASLKDJ");
         arr[1].deactivate(1);
       } else {
-        System.out.println("ABCDEFGHIJKLMNQO");
         arr[0].deactivate(1);
       }
     }
@@ -203,6 +220,124 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
         ditchInformation(t, trap);
       }
     }
+  }
+
+  public void cutTrapezoids(VerticalTrapezoid head, List<LineSegment> lines) {
+
+  }
+
+  public VertexPolygon[] cutPolygon(VertexPolygon polygon, LineSegment line) {
+    VertexList outline = polygon.getDlOutline();
+    VertexList newOutline = new VertexList();
+
+    //Kopieren
+    Vertex current = outline.head();
+    for(int i = 0; i < outline.size(); i++) {
+      newOutline.add(current);
+      current = outline.getNext(current);
+    }
+    outline = newOutline;
+
+    System.out.println(outline);
+
+    Vertex[] intersections = getFurthestIntersection(polygon, line);
+    System.out.println(Arrays.toString(intersections));
+
+    current = outline.head();
+    for(int i = 0; i < outline.size(); i++) {
+      Vertex next = outline.getNext(current);
+      LineSegment edge = new LineSegment(current, next);
+      Vertex intersection = new VirtualVertex(-1,-1);
+      if(edge.getLineIntersection(line, intersection)) {
+        System.out.println(intersection);
+        if(intersection.equals(intersections[0]) || intersection.equals(intersections[1])) {
+          outline.insertAfter(current, intersection);
+        }
+      }
+      current = next;
+    }
+    System.out.println(outline);
+
+    current = outline.head();
+    int direction = 0;
+    VertexPolygon upperPolygon = new VertexPolygon();
+    VertexPolygon lowerPolygon = new VertexPolygon();
+    VertexPolygon tmp = new VertexPolygon();
+
+    for(int i = 0; i < outline.size(); i++) {
+      Vertex next = outline.getNext(current);
+      LineSegment edge = new LineSegment(current, next);
+      if(current instanceof VirtualVertex) {
+        System.out.println("Virtual");
+        if(direction == 0) {
+          if(next.y < line.start.y) {
+            direction = 1;
+            lowerPolygon = tmp;
+            lowerPolygon.addVertex(current);
+          }
+          else{
+            direction = -1;
+            upperPolygon = tmp;
+            upperPolygon.addVertex(current);
+          }
+        } else {
+          if(next.y < line.start.y) {
+            direction = 1;
+            lowerPolygon.addVertex(current);
+          }
+          else{
+            direction = -1;
+            upperPolygon.addVertex(current);
+          }
+        }
+      }
+
+      if(direction == 1) {
+        upperPolygon.addVertex(current);
+      }
+      if(direction == -1) {
+        lowerPolygon.addVertex(current);
+      }
+      if(direction == 0) {
+        tmp.addVertex(current);
+      }
+      current = next;
+    }
+    return new VertexPolygon[] {upperPolygon, lowerPolygon};
+  }
+
+  public Vertex[] getFurthestIntersection(VertexPolygon polygon, LineSegment line) {
+    List<Vertex> intersections = new ArrayList();
+    VertexList outline = polygon.getDlOutline();
+
+    Vertex current = outline.head();
+    for(int i = 0; i < outline.size(); i++) {
+      Vertex next = outline.getNext(current);
+      LineSegment edge = new LineSegment(current, next);
+      Vertex intersection = new VirtualVertex(-1,-1);
+      if(edge.getLineIntersection(line, intersection)) {
+        intersections.add(intersection);
+      }
+      current = next;
+    }
+    Object[] oIntersections = intersections.toArray();
+    Vertex[] aIntersections = new Vertex[oIntersections.length];
+
+    for(int i = 0; i < oIntersections.length; i++) {
+      aIntersections[i] = (Vertex) oIntersections[i];
+    }
+
+    Arrays.sort(aIntersections, new VertexXComparator());
+
+    int furthestId = -1;
+    double biggest = 0;
+    for(int i = 0; i < aIntersections.length; i+= 2) {
+      if(Math.abs(aIntersections[i].x - aIntersections[i+1].x) > biggest) {
+        furthestId = i;
+        biggest = Math.abs(aIntersections[i].x - aIntersections[i+1].x);
+      }
+    }
+    return new Vertex[] {aIntersections[furthestId], aIntersections[furthestId+1]};
   }
 
 }

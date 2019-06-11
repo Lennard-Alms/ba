@@ -39,6 +39,29 @@ class VertexList {
     size++;
   }
 
+  public void insertAfter(Vertex position, Vertex value) {
+    VertexWrapper pos = map.get(position);
+    VertexWrapper v = new VertexWrapper(value);
+    VertexWrapper next = pos.getNext();
+    pos.setNext(v);
+    v.setNext(next);
+    v.setPrev(pos);
+    next.setPrev(v);
+    map.put(value, v);
+    size++;
+  }
+  public void insertBefore(Vertex position, Vertex value) {
+    VertexWrapper pos = map.get(position);
+    VertexWrapper v = new VertexWrapper(value);
+    VertexWrapper prev = pos.getPrev();
+    pos.setPrev(v);
+    v.setPrev(prev);
+    v.setNext(pos);
+    prev.setNext(v);
+    map.put(value, v);
+    size++;
+  }
+
   public boolean contains(Vertex v) {
     if(map.containsKey(v)) return true;
     return false;
@@ -93,6 +116,21 @@ class VertexList {
 
   public int size() {
     return size;
+  }
+
+  public String toString() {
+    String str = "[";
+    Vertex v = head();
+    for(int i = 0; i < size(); i++) {
+      if(v instanceof VirtualVertex) {
+        str += "v_";
+      }
+      str += v.toString();
+      str += ", ";
+      v = getNext(v);
+    }
+    str += "]";
+    return str;
   }
 
 
