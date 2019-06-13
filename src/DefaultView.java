@@ -298,6 +298,7 @@ class DefaultView {
       drawPolygon(poly);
       drawUIPolygon(poly);
       if(poly.isWithinBox(0,0,1000,800)) {
+
         if(poly.getAreaSize() > 200){
           poly.drawText(textLayer);
         }

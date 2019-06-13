@@ -203,7 +203,6 @@ class ConvexDecompositionStrategy implements TextStrategy{
     if(t.right.end.x == x) return t.right.end.y;
     Vertex v = new Vertex(0,0);
     t.bot.getLineIntersection(new LineSegment(x,0,x,1000), v);
-    System.out.println(v);
     return v.y;
   }
 
@@ -607,88 +606,95 @@ class ConvexDecompositionStrategy implements TextStrategy{
 
   public List<LineSegment> lineBreak(VertexList outline, int lineCount) {
     rotateCounterClockwise(outline);
+
     //Linked List mit konstanter Einfüge Operation
-    Vertex[] orderedVertices = sort(outline);
+    try {
+      Vertex[] orderedVertices = sort(outline);
 
-    // for(Vertex v : orderedVertices) {
-    //   drawCircle(v);
-    // }
+      // for(Vertex v : orderedVertices) {
+      //   drawCircle(v);
+      // }
 
-    LinkedList<VerticalTrapezoid> trapList = (LinkedList<VerticalTrapezoid>)getTrapezoidalDecomposition(outline, orderedVertices);
-    double areaPolygon = area(trapList);
-    HashSet<VerticalTrapezoid> ats = new HashSet<VerticalTrapezoid>();
-    // double area[] = new double[trapList.size()];
-    double area = 0;
-    double area_last = 0;
-    double sweep = 0;
-    double a1 = 0;
-    double a2 = 0;
-    double b1 = 0;
-    double b2 = 0;
-    double s_last = -9999;
-    double counter = 1;
+      LinkedList<VerticalTrapezoid> trapList = (LinkedList<VerticalTrapezoid>)getTrapezoidalDecomposition(outline, orderedVertices);
+      double areaPolygon = area(trapList);
+      HashSet<VerticalTrapezoid> ats = new HashSet<VerticalTrapezoid>();
+      // double area[] = new double[trapList.size()];
+      double area = 0;
+      double area_last = 0;
+      double sweep = 0;
+      double a1 = 0;
+      double a2 = 0;
+      double b1 = 0;
+      double b2 = 0;
+      double s_last = -9999;
+      double counter = 1;
 
-    List<LineSegment> breakingLines = new LinkedList<LineSegment>();
+      List<LineSegment> breakingLines = new LinkedList<LineSegment>();
 
-    for(VerticalTrapezoid trapezoid : trapList) {
-      sweep = trapezoid.left.start.x;
-      if(s_last == -9999) {
+      for(VerticalTrapezoid trapezoid : trapList) {
+        sweep = trapezoid.left.start.x;
+        if(s_last == -9999) {
+          s_last = sweep;
+        }
+
+        // area += a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last)
+        //   - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last));
+        if(s_last != sweep) {
+          double addition = ((a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last))
+            - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)));
+
+          // area += a2/2 * Math.pow(sweep,2) + b2*sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)
+          //   - (a1/2 * Math.pow(sweep,2) + b1 * sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last));
+          area += addition;
+          while(area > areaPolygon * (counter/(lineCount + 1)) && counter <= lineCount) {
+            //Trapez gefunden
+            double Fleft = areaPolygon * counter / (lineCount + 1) - area_last;
+            // double x = -((b1 - b2 + Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
+            double x = (-(b1 - b2 - Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
+            LineSegment vLine = new LineSegment(new Vertex(x, 0), new Vertex(x, 1000));
+            vLine.start.rotateClockwise();
+            vLine.end.rotateClockwise();
+            breakingLines.add(vLine);
+            // drawLineSegment(vLine);
+            counter++;
+          }
+        }
+
+
+
+        //Erst rechnen, dann hinzufügen
+
+
+
+        if(!(trapezoid instanceof VerticalTrapezoidFiller)) {
+          a1 += trapezoid.bot.slope();
+          a2 += trapezoid.top.slope();
+          b1 += trapezoid.bot.functionOffset();
+          b2 += trapezoid.top.functionOffset();
+          ats.add(trapezoid);
+        }
+        HashSet<VerticalTrapezoid> traps = trapezoid.getPrev();
+        for(VerticalTrapezoid t : traps) {
+          if(ats.contains(t)) {
+            a1 -= t.bot.slope();
+            a2 -= t.top.slope();
+            b1 -= t.bot.functionOffset();
+            b2 -= t.top.functionOffset();
+          }
+          ats.remove(t);
+        }
+
         s_last = sweep;
+        area_last = area;
       }
-
-      // area += a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last)
-      //   - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last));
-      if(s_last != sweep) {
-        double addition = ((a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last))
-          - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)));
-
-        // area += a2/2 * Math.pow(sweep,2) + b2*sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)
-        //   - (a1/2 * Math.pow(sweep,2) + b1 * sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last));
-        area += addition;
-        while(area > areaPolygon * (counter/(lineCount + 1)) && counter <= lineCount) {
-          //Trapez gefunden
-          double Fleft = areaPolygon * counter / (lineCount + 1) - area_last;
-          // double x = -((b1 - b2 + Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
-          double x = (-(b1 - b2 - Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
-          LineSegment vLine = new LineSegment(new Vertex(x, 0), new Vertex(x, 1000));
-          vLine.start.rotateClockwise();
-          vLine.end.rotateClockwise();
-          breakingLines.add(vLine);
-          // drawLineSegment(vLine);
-          counter++;
-        }
-      }
-
-
-
-      //Erst rechnen, dann hinzufügen
-
-
-
-      if(!(trapezoid instanceof VerticalTrapezoidFiller)) {
-        a1 += trapezoid.bot.slope();
-        a2 += trapezoid.top.slope();
-        b1 += trapezoid.bot.functionOffset();
-        b2 += trapezoid.top.functionOffset();
-        ats.add(trapezoid);
-      }
-      HashSet<VerticalTrapezoid> traps = trapezoid.getPrev();
-      for(VerticalTrapezoid t : traps) {
-        if(ats.contains(t)) {
-          a1 -= t.bot.slope();
-          a2 -= t.top.slope();
-          b1 -= t.bot.functionOffset();
-          b2 -= t.top.functionOffset();
-        }
-        ats.remove(t);
-      }
-
-      s_last = sweep;
-      area_last = area;
+      rotateClockwise(outline);
+      return breakingLines;
+    } catch(Exception e) {
+      rotateClockwise(outline);
+      return null;
     }
 
-    rotateClockwise(outline);
-    return breakingLines;
+
   }
 
   public void rotateCounterClockwise(VertexList outline) {
