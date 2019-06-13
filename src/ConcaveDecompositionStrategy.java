@@ -18,7 +18,7 @@ import java.util.Random;
 
 class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
 
-  public double margin = 10;
+  public double margin = 0;
   int rec = 0;
   public ConcaveDecompositionStrategy(){
     System.out.println("ConcaveDecomposition Constructor");
@@ -27,9 +27,9 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
 
   public boolean drawing = false;
   public void drawText(VertexPolygon poly, Pane textLayer) {
-    m -= 0.01;
     this.textLayer = textLayer;
-
+    margin = GlobalOptions.getMargin();
+    
     Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
@@ -56,7 +56,7 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       VerticalTrapezoid head = trapezoids.get(0);
       VerticalTrapezoid tail = getTail(head, head, null);
 
-      double m = 0;
+      // double m = 0;
       information(head, 1);
       information(head, -1);
       ditchInformation(head, null);
@@ -68,7 +68,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       head = getHead(head, head, null);
       tail = getTail(tail, tail, null);
       // VertexPolygon _p = _trapezoidToPolygonMonotone(head);
-
       try {
         List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), margin);
 

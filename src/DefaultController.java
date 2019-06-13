@@ -197,4 +197,7 @@ class DefaultController {
     }
     view.refresh();
   }
+  public void handleMarginUpdate() {
+    
+  }
 }

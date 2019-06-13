@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.beans.value.*;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.text.*;
@@ -47,11 +48,14 @@ class DefaultView {
   Button moveRightButton = new Button("Right");
   Button moveDownButton = new Button("Down");
   Button moveUpButton = new Button("Up");
+  TextField marginTextField = new TextField();
+  TextField alphaTextField = new TextField();
   ComboBox<String> strategySelector = new ComboBox<String>();
 
   DefaultController controller;
 
   public DefaultView(Pane root) {
+    GlobalOptions.setView(this);
     controller = new DefaultController(this);
     root.getChildren().add(emptyLayer);
     root.getChildren().add(uiContainer);
@@ -192,6 +196,25 @@ class DefaultView {
       }
     });
 
+    marginTextField.textProperty().addListener(new ChangeListener<String>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable,
+                String oldValue, String newValue) {
+            if(newValue.matches("[0-9]+"))
+                GlobalOptions.setMargin(Integer.parseInt(newValue));
+        }
+    });
+    marginTextField.setPromptText("Margin");
+    alphaTextField.textProperty().addListener(new ChangeListener<String>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable,
+                String oldValue, String newValue) {
+            if(newValue.matches("[0-9]+"))
+                GlobalOptions.setAlpha(Integer.parseInt(newValue));
+        }
+    });
+    alphaTextField.setPromptText("Alpha");
+
     strategySelector.getItems().addAll(
       "Default",
       "Zentrale Achse Strategie",
@@ -218,6 +241,8 @@ class DefaultView {
     uiContainer.getChildren().add(moveRightButton);
     uiContainer.getChildren().add(moveUpButton);
     uiContainer.getChildren().add(moveDownButton);
+    uiContainer.getChildren().add(marginTextField);
+    uiContainer.getChildren().add(alphaTextField);
   }
 
   public void drawPolygon(VertexPolygon vertexPolygon){

@@ -36,7 +36,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
 
   public void drawText(VertexPolygon poly, Pane textLayer) {
     this.textLayer = textLayer;
-
+    this.m = GlobalOptions.getMargin();
     Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
