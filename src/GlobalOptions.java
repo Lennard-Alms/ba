@@ -14,6 +14,7 @@ class GlobalOptions {
     }
     public static void setAlpha(double a) {
        alpha = Math.abs(a);
+       view.refresh();
     }
     public static double getAlpha() {
        return alpha;
