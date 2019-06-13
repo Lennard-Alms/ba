@@ -28,7 +28,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
   public boolean drawing = false;
   public void drawText(VertexPolygon poly, Pane textLayer) {
     m -= 0.01;
-    System.out.println("m: " + m);
     this.textLayer = textLayer;
 
     Random r = new Random();
@@ -40,11 +39,9 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       Vertex v = outline.head();
       for(int i = 0; i < outline.size() + 2; i++) {
         if(v.x == last) {
-          System.out.println("schieb");
           v.x += r.nextDouble() * 0.05;
         }
         if(v.y == lasty) {
-          System.out.println("schieb");
           v.y += r.nextDouble() * 0.05;
         }
         last = v.x;
@@ -66,40 +63,61 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       head = getHead(head, head, null);
       tail = getTail(tail, head, null);
 
-      if(rec == -1)
-        drawTrapezoids(head, null);
-      // trimFast(head, tail, minHeight);
+      trimFast(head, tail, minHeight);
       // trimConvex(head, head, minHeight);
       head = getHead(head, head, null);
       tail = getTail(tail, tail, null);
       // VertexPolygon _p = _trapezoidToPolygonMonotone(head);
-      drawing = true;
-      List<LineSegment> breakingLines = lineBreak(poly.getDlOutline(), 1);
 
-      VertexPolygon[] polygons = null;
-      polygons = cutPolygon(poly, breakingLines.get(0));
-      if(rec == 0) {
-        for(int i = 0; i < 2; i++) {
-          VertexList _outline = polygons[i].getDlOutline();
+      try {
+        List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), margin);
+
+        double smallestBox = 10000;
+        double biggestBox = 0;
+        for(int k = 0; k < boxes.size(); k++) {
+          BoundingBox b = boxes.get(k);
+          if(b.height() > 6 * b.width()) {
+            throw new ReadabilityException();
+          } else {
+            // drawTrapezoids(head, null);
+            // for(int i = 0; i < boxes.size(); i++) {
+            //   placeLetterInBox(boxes.get(i), poly.getText().substring(i, i+1));
+            // }
+          }
+          if(b.height() < smallestBox) smallestBox = b.height();
+          if(b.height() > biggestBox) biggestBox = b.height();
+        }
+        // if(biggestBox > 4*smallestBox) {
+        //   throw new ReadabilityException();
+        // }
+
+        for(int k = 0; k < boxes.size(); k++) {
+          placeLetterInBox(boxes.get(k), poly.getText().substring(k, k+1));
+        }
+
+      } catch (ReadabilityException e) {
+        List<LineSegment> breakingLines = lineBreak(poly.getDlOutline(), 1);
+        VertexPolygon[] polygons = null;
+        polygons = cutPolygon(poly, breakingLines.get(0));
+
+        ArrayList<VertexPolygon> polyList = new ArrayList<VertexPolygon>();
+        for(int k = 0; k < 2; k++) {
+          polyList.add(polygons[k]);
+        }
+        PolygonWriter writer = new PolygonWriter(polyList);
+        writer.save("testfile.graph");
+
+        for(int k = 0; k < 2; k++) {
+          VertexList _outline = polygons[k].getDlOutline();
           Vertex[] _orderedVertices = sort(_outline);
           List<VerticalTrapezoid> _trapezoids = getTrapezoidalDecomposition(_outline, _orderedVertices);
-          // drawTrapezoids(_trapezoids.get(0), null);
-          polygons[i].setText("Hallo");
-          polygons[i].setTextStrategy(this);
-          rec = -1;
-          polygons[i].drawText(textLayer);
-          rec = 0;
+
+
+
+          polygons[k].setText(splitText(poly.getText())[k]);
+          polygons[k].setTextStrategy(new ConcaveDecompositionStrategy());
+          polygons[k].drawText(textLayer);
         }
-
-      }
-
-      List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), margin);
-
-      if(rec == -1) {
-        for(int i = 0; i < boxes.size(); i++) {
-          placeLetterInBox(boxes.get(i), poly.getText().substring(i, i+1));
-        }
-
       }
     } catch (Exception e){
       System.out.println("---Exception---");
@@ -195,7 +213,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
     HashSet<VerticalTrapezoid> _prev = trap.getPrev();
     if(_next.size() == 2) {
       VerticalTrapezoid[] arr = _next.toArray(new VerticalTrapezoid[2]);
-      System.out.println(arr[0].informationRight);
       if(arr[0].informationRight > arr[1].informationRight) {
         arr[1].deactivate(1);
       } else {
@@ -229,19 +246,16 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
   public VertexPolygon[] cutPolygon(VertexPolygon polygon, LineSegment line) {
     VertexList outline = polygon.getDlOutline();
     VertexList newOutline = new VertexList();
-
     //Kopieren
     Vertex current = outline.head();
     for(int i = 0; i < outline.size(); i++) {
-      newOutline.add(current);
+      newOutline.add(current.toVertex());
       current = outline.getNext(current);
     }
     outline = newOutline;
 
-    System.out.println(outline);
 
     Vertex[] intersections = getFurthestIntersection(polygon, line);
-    System.out.println(Arrays.toString(intersections));
 
     current = outline.head();
     for(int i = 0; i < outline.size(); i++) {
@@ -249,14 +263,12 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       LineSegment edge = new LineSegment(current, next);
       Vertex intersection = new VirtualVertex(-1,-1);
       if(edge.getLineIntersection(line, intersection)) {
-        System.out.println(intersection);
         if(intersection.equals(intersections[0]) || intersection.equals(intersections[1])) {
           outline.insertAfter(current, intersection);
         }
       }
       current = next;
     }
-    System.out.println(outline);
 
     current = outline.head();
     int direction = 0;
@@ -268,7 +280,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       Vertex next = outline.getNext(current);
       LineSegment edge = new LineSegment(current, next);
       if(current instanceof VirtualVertex) {
-        System.out.println("Virtual");
         if(direction == 0) {
           if(next.y < line.start.y) {
             direction = 1;
@@ -338,6 +349,99 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       }
     }
     return new Vertex[] {aIntersections[furthestId], aIntersections[furthestId+1]};
+  }
+
+
+  /**
+    @author Lennard Alms
+  */
+  private String[] splitText(String text) {
+
+    if(text.substring(0,text.length() - 1).contains(" ") || text.substring(0,text.length() - 1).contains("-")){
+
+      /*
+      loop through text to find positions of spaces and dashes
+      wich naturally seperate the text.
+      Retruns the two substrings with the most center seperator.
+       */
+
+      ArrayList<Integer> indexList = new ArrayList<Integer>();
+
+      for (int i = 0; i < text.length() - 1; i++){
+
+        char c = text.charAt(i);
+
+        if(c == ' ' || c == '-') {
+
+          indexList.add(i);
+
+        }
+
+      }
+
+      int mid = indexList.get(indexList.size()/2);
+
+      /*
+      If we seperate at a dash we want to keep the dash with the first substring.
+      If we find a space we will not add it to either substring since they are allready seperated now.
+       */
+
+      if(text.charAt(mid) == '-') {
+
+        return new String[]{text.substring(0, mid + 1), text.substring(mid + 1)};
+
+      } else {
+
+        return new String[]{text.substring(0, mid),text.substring(mid + 1)};
+
+      }
+
+
+    } else {
+
+      HyphenGenerator hyphi = new HyphenGenerator("de");
+      List<String> hyphenatedText = hyphi.hyphenate(text);
+
+      if(hyphenatedText.size() > 1) {
+
+        String subPoly1Text = "";
+        String subPoly2Text = "";
+
+        for(int j = 0; j < hyphenatedText.size(); j++) {
+
+          if(j < hyphenatedText.size() / 2){
+            subPoly1Text += hyphenatedText.get(j);
+          } else {
+            subPoly2Text += hyphenatedText.get(j);
+          }
+
+        }
+
+        // return new String[]{subPoly1Text + "-", subPoly2Text};
+        return new String[]{subPoly1Text, subPoly2Text};
+
+      } else {
+
+        int mid = text.length() / 2; //get the middle of the String
+        // return new String[]{text.substring(0, mid) + "-",text.substring(mid)};
+        return new String[]{text.substring(0, mid),text.substring(mid)};
+
+      }
+    }
+  }
+
+  public void reactivateAll(VerticalTrapezoid trapezoid, VerticalTrapezoid prev) {
+    trapezoid.activate();
+    for(VerticalTrapezoid t : trapezoid.getNext()) {
+      if(!t.equals(prev)) {
+        reactivateAll(t, trapezoid);
+      }
+    }
+    for(VerticalTrapezoid t : trapezoid.getPrev()) {
+      if(!t.equals(prev)) {
+        reactivateAll(t, trapezoid);
+      }
+    }
   }
 
 }

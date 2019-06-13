@@ -139,4 +139,8 @@ public class Vertex {
       return hash.hashCode();
     }
 
+    public Vertex toVertex() {
+      return new Vertex(x, y);
+    }
+
 }

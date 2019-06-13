@@ -20,7 +20,7 @@ class VertexPolygon {
   public VertexPolygon(String text) {
     outline = new ArrayList<Vertex>();
     dlOutline = new VertexList();
-    this.text = text;
+    this.text = text.toUpperCase();
   }
 
   public ArrayList<Vertex> getOutline() {
@@ -47,7 +47,7 @@ class VertexPolygon {
   }
 
   public void setText(String text) {
-    this.text = text;
+    this.text = text.toUpperCase();
   }
 
   /**

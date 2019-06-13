@@ -1,0 +1,5 @@
+
+
+class ReadabilityException extends Exception {
+  
+}

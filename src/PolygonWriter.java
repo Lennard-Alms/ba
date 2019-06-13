@@ -69,7 +69,7 @@ class PolygonWriter {
       polygon.put("outline", outline);
       polygon.put("text", p.text);
 
-        polygonObjects.put(polygon);
+      polygonObjects.put(polygon);
     }
 
     root.put("polygons", polygonObjects);
