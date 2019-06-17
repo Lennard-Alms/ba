@@ -26,6 +26,8 @@ class CenterXStrategy implements TextStrategy{
   try{
 
     // ZENTRALE ACHSE
+    double sigmad = GlobalOptions.getSigmad();
+    double sigmay = GlobalOptions.getSigmay();
 
     ArrayList<Vertex> ereignisstruktur = new ArrayList<>();
     ereignisstruktur.addAll(buildOutlinePointsX(originalPoly));
@@ -75,7 +77,7 @@ class CenterXStrategy implements TextStrategy{
 
     ArrayList<LineSegment> oldBisectorSegments = new ArrayList<LineSegment>();
     oldBisectorSegments.addAll(bisectorSegments);
-    double alpha = 0.4;
+    double alpha = GlobalOptions.getAlpha() / 10;
     ArrayList<LineSegment> newBisectorSegments = new ArrayList<LineSegment>();
     while(true) {
 
@@ -200,7 +202,7 @@ class CenterXStrategy implements TextStrategy{
 
     for(int i = 0; i < originalPoly.text.length(); i++){
       Vertex z = new Vertex(discretePath.get(i * tau + tau / 2).x,0);
-      NormalDistribution norm = new NormalDistribution(z.x, deltaX);
+      NormalDistribution norm = new NormalDistribution(z.x, deltaX * sigmay);
       double g = 0.0;
       double count = 0.0;
       for(Vertex v : discretePath) {
@@ -266,7 +268,7 @@ class CenterXStrategy implements TextStrategy{
     for(int i = 0; i < originalPoly.text.length(); i++){
       Vertex z = zentren.get(i);
       double zHeight = 0.0;
-      NormalDistribution norm = new NormalDistribution(z.x, deltaX);
+      NormalDistribution norm = new NormalDistribution(z.x, deltaX * sigmad);
       double g = 0.0;
       double count = 0.0;
       for(int j = 0; j < discretePath.size(); j++){
