@@ -169,12 +169,16 @@ class ConvexDecompositionStrategy implements TextStrategy{
     t = getTrapezoidAtPosition(t, x1);
     double top = getTopAtPosition(t, x1);
     double lastX = x1;
+    double lastT = top;
     double gesamt = x2 - x1;
+    if(GlobalOptions.getAverage())
+        top = 0;
     while(t.right.start.x < x2) {
       if(GlobalOptions.getAverage()) {
           double width = t.right.start.x - lastX;
-          top += width * t.right.start.y;
+          top += width * (t.right.start.y + lastT) / 2;
           lastX = t.right.start.x;
+          lastT = t.right.start.y;
       }
       else {
           top = Math.max(top, t.right.start.y);
@@ -183,7 +187,7 @@ class ConvexDecompositionStrategy implements TextStrategy{
     }
     if(GlobalOptions.getAverage()) {
         double tNew = getTopAtPosition(t, x2);
-        top += tNew * (x2 - lastX);
+        top += (tNew + lastT) / 2 * (x2 - lastX);
         return top / gesamt;
     }
     return Math.max(top, getTopAtPosition(t, x2));
@@ -201,21 +205,28 @@ class ConvexDecompositionStrategy implements TextStrategy{
     t = getTrapezoidAtPosition(t, x1);
     double bot = getBotAtPosition(t, x1);
     double lastX = x1;
+    double lastB = bot;
     double gesamt = x2 - x1;
+    double gesamttmp = 0;
+    if(GlobalOptions.getAverage())
+        bot = 0;
     while(t.right.end.x < x2) {
         if(GlobalOptions.getAverage()) {
-            double width = t.right.end.x - lastX;
-            bot += width * t.right.end.y;
+            double width = Math.abs(t.right.end.x - lastX);
+            gesamttmp += width;
+            bot += width * (t.right.end.y + lastB) / 2;
             lastX = t.right.end.x;
+            lastB = t.right.end.y;
         } else {
             bot = Math.min(bot, t.right.end.y);
         }
 
       t = t.getNextExplicit();
     }
+    // System.out.println(gesamttmp + " : " + gesamt);
     if(GlobalOptions.getAverage()) {
         double tNew = getBotAtPosition(t, x2);
-        bot += tNew * (x2 - lastX);
+        bot += (tNew + lastB) / 2 * (x2 - lastX);
         return bot / gesamt;
     }
     return Math.min(bot, getBotAtPosition(t, x2));
