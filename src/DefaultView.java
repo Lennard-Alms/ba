@@ -49,9 +49,11 @@ class DefaultView {
   Button moveDownButton = new Button("Down");
   Button moveUpButton = new Button("Up");
   TextField marginTextField = new TextField();
+  TextField marginBTTextField = new TextField();
   TextField alphaTextField = new TextField();
   TextField sigmadTextField = new TextField();
   TextField sigmayTextField = new TextField();
+  CheckBox averageCheckbox = new CheckBox();
   ComboBox<String> strategySelector = new ComboBox<String>();
 
   DefaultController controller;
@@ -216,6 +218,15 @@ class DefaultView {
         }
     });
     marginTextField.setPromptText("Margin");
+    marginBTTextField.textProperty().addListener(new ChangeListener<String>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable,
+                String oldValue, String newValue) {
+            if(newValue.matches("[0-9]+"))
+                GlobalOptions.setMarginBT(Integer.parseInt(newValue));
+        }
+    });
+    marginBTTextField.setPromptText("Margin BT");
     alphaTextField.textProperty().addListener(new ChangeListener<String>() {
         @Override
         public void changed(ObservableValue<? extends String> observable,
@@ -246,6 +257,15 @@ class DefaultView {
     sigmayTextField.setPromptText("sigmaY");
 
 
+    averageCheckbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+    @Override
+    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            GlobalOptions.setAverage(newValue);
+        }
+    });
+
+
+
     strategySelector.getItems().addAll(
       "Default",
       "Zentrale Achse Strategie",
@@ -273,9 +293,11 @@ class DefaultView {
     uiContainer.getChildren().add(moveUpButton);
     uiContainer.getChildren().add(moveDownButton);
     uiContainer.getChildren().add(marginTextField);
+    uiContainer.getChildren().add(marginBTTextField);
     uiContainer.getChildren().add(alphaTextField);
     uiContainer.getChildren().add(sigmadTextField);
     uiContainer.getChildren().add(sigmayTextField);
+    uiContainer.getChildren().add(averageCheckbox);
   }
 
   public void drawPolygon(VertexPolygon vertexPolygon){

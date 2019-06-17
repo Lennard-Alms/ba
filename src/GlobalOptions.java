@@ -2,13 +2,15 @@
 
 class GlobalOptions {
     private static double margin = 0;
+    private static double marginBT = 0;
     private static double alpha = 1;
     private static double sigmad = 1;
     private static double sigmay = 1;
+    private static Boolean average = false;
     private static DefaultView view = null;
 
     public static void setMargin(double m) {
-       margin = Math.abs(m);
+       margin = m;
        view.refresh();
     }
     public static double getMargin() {
@@ -38,5 +40,19 @@ class GlobalOptions {
 
     public static void setView(DefaultView v) {
         view = v;
+    }
+    public static void setAverage(Boolean value) {
+        average = value;
+        view.refresh();
+    }
+    public static Boolean getAverage() {
+        return average;
+    }
+    public static double getMarginBT() {
+        return marginBT;
+    }
+    public static void setMarginBT(double m) {
+       marginBT = m;
+       view.refresh();
     }
 }

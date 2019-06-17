@@ -21,7 +21,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
   public double margin = 0;
   int rec = 0;
   public ConcaveDecompositionStrategy(){
-    System.out.println("ConcaveDecomposition Constructor");
   }
 
 

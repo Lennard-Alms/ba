@@ -27,7 +27,6 @@ class ConvexDecompositionStrategy implements TextStrategy{
 
 
   public ConvexDecompositionStrategy(){
-    System.out.println("Convex Constructor");
   }
 
   // public List<LineSegment> getVerticalIntersections(VertexPolygon polygon, double x) {
@@ -135,8 +134,8 @@ class ConvexDecompositionStrategy implements TextStrategy{
       double x2 = mostLeftPoint + width * (rectCounter + 1);
       double x1_m = x1 + (width / 100.0 * margin);
       double x2_m = x2 - (width / 100.0 * margin);
-      double top = getTopInInterval(current, x1_m, x2_m);
-      double bot = getBotInInterval(current, x1_m, x2_m);
+      double top = getTopInInterval(current, x1_m, x2_m) + GlobalOptions.getMarginBT() - 10;
+      double bot = (getBotInInterval(current, x1_m, x2_m) - GlobalOptions.getMarginBT()) - 10;
       // current = getTrapezoidAtPosition(current, x2);
       boundingBoxes.add(new BoundingBox(top, x2_m, bot, x1_m));
     }
@@ -169,11 +168,23 @@ class ConvexDecompositionStrategy implements TextStrategy{
   public double getTopInInterval(VerticalTrapezoid t, double x1, double x2) {
     t = getTrapezoidAtPosition(t, x1);
     double top = getTopAtPosition(t, x1);
+    double lastX = x1;
+    double gesamt = x2 - x1;
     while(t.right.start.x < x2) {
-      // if(t.right.start.x >= x2) {
-        top = Math.max(top, t.right.start.y);
-      // }
+      if(GlobalOptions.getAverage()) {
+          double width = t.right.start.x - lastX;
+          top += width * t.right.start.y;
+          lastX = t.right.start.x;
+      }
+      else {
+          top = Math.max(top, t.right.start.y);
+      }
       t = t.getNextExplicit();
+    }
+    if(GlobalOptions.getAverage()) {
+        double tNew = getTopAtPosition(t, x2);
+        top += tNew * (x2 - lastX);
+        return top / gesamt;
     }
     return Math.max(top, getTopAtPosition(t, x2));
   }
@@ -189,11 +200,23 @@ class ConvexDecompositionStrategy implements TextStrategy{
   public double getBotInInterval(VerticalTrapezoid t, double x1, double x2) {
     t = getTrapezoidAtPosition(t, x1);
     double bot = getBotAtPosition(t, x1);
+    double lastX = x1;
+    double gesamt = x2 - x1;
     while(t.right.end.x < x2) {
-      // if(t.right.end.x >= x2) {
-        bot = Math.min(bot, t.right.end.y);
-      // }
+        if(GlobalOptions.getAverage()) {
+            double width = t.right.end.x - lastX;
+            bot += width * t.right.end.y;
+            lastX = t.right.end.x;
+        } else {
+            bot = Math.min(bot, t.right.end.y);
+        }
+
       t = t.getNextExplicit();
+    }
+    if(GlobalOptions.getAverage()) {
+        double tNew = getBotAtPosition(t, x2);
+        bot += tNew * (x2 - lastX);
+        return bot / gesamt;
     }
     return Math.min(bot, getBotAtPosition(t, x2));
   }
