@@ -50,6 +50,8 @@ class DefaultView {
   Button moveUpButton = new Button("Up");
   TextField marginTextField = new TextField();
   TextField alphaTextField = new TextField();
+  TextField sigmadTextField = new TextField();
+  TextField sigmayTextField = new TextField();
   ComboBox<String> strategySelector = new ComboBox<String>();
 
   DefaultController controller;
@@ -71,6 +73,15 @@ class DefaultView {
   }
 
   public void addOnClickActionListenerOnDrawingArea() {
+
+      Rectangle r2 = new Rectangle();
+      r2.setX(0);
+      r2.setY(0);
+      r2.setWidth(drawingAreaWidth);
+      r2.setHeight(drawingAreaHeight);
+      r2.setFill(Color.color(1,1,1,1));
+      // textLayer.getChildren().add(r2);
+
     Rectangle r = new Rectangle();
     r.setX(0);
     r.setY(0);
@@ -215,6 +226,26 @@ class DefaultView {
     });
     alphaTextField.setPromptText("Alpha");
 
+    sigmadTextField.textProperty().addListener(new ChangeListener<String>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable,
+                String oldValue, String newValue) {
+            if(newValue.matches("[0-9]+"))
+                GlobalOptions.setSigmad(Double.parseDouble(newValue));
+        }
+    });
+    sigmadTextField.setPromptText("sigmaD");
+    sigmayTextField.textProperty().addListener(new ChangeListener<String>() {
+        @Override
+        public void changed(ObservableValue<? extends String> observable,
+                String oldValue, String newValue) {
+            if(newValue.matches("[0-9]+"))
+                GlobalOptions.setSigmay(Double.parseDouble(newValue));
+        }
+    });
+    sigmayTextField.setPromptText("sigmaY");
+
+
     strategySelector.getItems().addAll(
       "Default",
       "Zentrale Achse Strategie",
@@ -243,6 +274,8 @@ class DefaultView {
     uiContainer.getChildren().add(moveDownButton);
     uiContainer.getChildren().add(marginTextField);
     uiContainer.getChildren().add(alphaTextField);
+    uiContainer.getChildren().add(sigmadTextField);
+    uiContainer.getChildren().add(sigmayTextField);
   }
 
   public void drawPolygon(VertexPolygon vertexPolygon){

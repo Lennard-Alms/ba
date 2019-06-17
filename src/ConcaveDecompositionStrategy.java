@@ -29,7 +29,7 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
   public void drawText(VertexPolygon poly, Pane textLayer) {
     this.textLayer = textLayer;
     margin = GlobalOptions.getMargin();
-    
+
     Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
@@ -104,7 +104,6 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
           polyList.add(polygons[k]);
         }
         PolygonWriter writer = new PolygonWriter(polyList);
-        writer.save("testfile.graph");
 
         for(int k = 0; k < 2; k++) {
           VertexList _outline = polygons[k].getDlOutline();
