@@ -38,10 +38,10 @@ class ConcaveDecompositionStrategy extends ConvexDecompositionStrategy {
       Vertex v = outline.head();
       for(int i = 0; i < outline.size() + 2; i++) {
         if(v.x == last) {
-          v.x += r.nextDouble() * 0.05;
+          v.x += 0.0005;
         }
         if(v.y == lasty) {
-          v.y += r.nextDouble() * 0.05;
+          v.y += 0.0005;
         }
         last = v.x;
         lasty = v.y;
