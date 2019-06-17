@@ -146,6 +146,14 @@ class DefaultController {
     //view.refresh();
   }
 
+  public void handleStrategyDropDownAll() {
+    String strategy = (String) view.getStrategyAllCombobox().getValue();
+    for(VertexPolygon poly : polygonList) {
+      poly.setTextStrategy(StrategyFactory.getStrategy(strategy));
+    }
+    view.refresh();
+  }
+
   public void handleScaleInButton() {
     ArrayList<Vertex> vertices = state.getVertices();
     for(int i = 0; i < vertices.size(); i++) {
@@ -198,6 +206,6 @@ class DefaultController {
     view.refresh();
   }
   public void handleMarginUpdate() {
-    
+
   }
 }

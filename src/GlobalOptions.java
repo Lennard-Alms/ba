@@ -3,7 +3,7 @@
 class GlobalOptions {
     private static double margin = 0;
     private static double marginBT = 0;
-    private static double alpha = 1;
+    private static double alpha = 4;
     private static double sigmad = 1;
     private static double sigmay = 1;
     private static Boolean average = false;

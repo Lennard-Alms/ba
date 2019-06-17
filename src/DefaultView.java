@@ -55,6 +55,7 @@ class DefaultView {
   TextField sigmayTextField = new TextField();
   CheckBox averageCheckbox = new CheckBox();
   ComboBox<String> strategySelector = new ComboBox<String>();
+  ComboBox<String> strategySelectorAll = new ComboBox<String>();
 
   DefaultController controller;
 
@@ -278,6 +279,18 @@ class DefaultView {
       }
     });
 
+    strategySelectorAll.getItems().addAll(
+      "Default",
+      "Zentrale Achse Strategie",
+      "Concave Decomposition Strategy"
+    );
+    strategySelectorAll.setValue("Default");
+    strategySelectorAll.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleStrategyDropDownAll();
+      }
+    });
+
     navigationContainer.getChildren().add(prevBtn);
     navigationContainer.getChildren().add(updateBtn);
     navigationContainer.getChildren().add(nextBtn);
@@ -286,6 +299,7 @@ class DefaultView {
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
     uiContainer.getChildren().add(strategySelector);
+    uiContainer.getChildren().add(strategySelectorAll);
     uiContainer.getChildren().add(scaleInButton);
     uiContainer.getChildren().add(scaleOutButton);
     uiContainer.getChildren().add(moveLeftButton);
@@ -406,6 +420,10 @@ class DefaultView {
 
   public ComboBox<String> getStrategyCombobox() {
     return strategySelector;
+  }
+
+  public ComboBox<String> getStrategyAllCombobox() {
+    return strategySelectorAll;
   }
 
   public Button getNewPolyButton() {
