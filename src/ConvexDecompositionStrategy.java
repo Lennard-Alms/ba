@@ -134,8 +134,8 @@ class ConvexDecompositionStrategy implements TextStrategy{
       double x2 = mostLeftPoint + width * (rectCounter + 1);
       double x1_m = x1 + (width / 100.0 * margin);
       double x2_m = x2 - (width / 100.0 * margin);
-      double top = getTopInInterval(current, x1_m, x2_m) + GlobalOptions.getMarginBT() - 10;
-      double bot = (getBotInInterval(current, x1_m, x2_m) - GlobalOptions.getMarginBT()) - 10;
+      double top = getTopInInterval(current, x1_m, x2_m) + GlobalOptions.getMarginBT();
+      double bot = (getBotInInterval(current, x1_m, x2_m) - GlobalOptions.getMarginBT());
       // current = getTrapezoidAtPosition(current, x2);
       boundingBoxes.add(new BoundingBox(top, x2_m, bot, x1_m));
     }
